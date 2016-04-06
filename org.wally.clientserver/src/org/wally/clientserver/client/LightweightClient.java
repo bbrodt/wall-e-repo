@@ -1,53 +1,41 @@
 package org.wally.clientserver.client;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.Socket;
 
 public class LightweightClient {
 
+	private IClientFactory factory;
 	private String host;
 	private int port;
 	
-	public LightweightClient(String host, int port) {
+	public LightweightClient(IClientFactory factory, String host, int port) {
+		this.factory = factory;
 		this.host = host;
 		this.port = port;
 	}
 	
-	public void run() {
-		BufferedReader in = null;
-		PrintWriter out = null;
+	public void start() {
 		Socket socket = null;
 		try {
 			// Connect to server
 			socket = new Socket(host, port);
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 			System.out.println("Connected to server " + host + ":" + port);
 		} catch (IOException ioe) {
 			System.err.println("Can not establish connection to " + host + ":" + port);
 			ioe.printStackTrace();
 			System.exit(-1);
-		} finally {
-			if (socket != null) {
-				// socket.close();
-			}
 		}
 
-		// Create and start Sender thread
-		Sender sender = new Sender(out);
-		sender.setDaemon(true);
-		sender.start();
-
-		try {
-			// Read messages from the server and print them
-			String message;
-			while ((message = in.readLine()) != null) {
-				System.out.println(message);
-			}
-		} catch (IOException ioe) {
-			System.err.println("Connection to server broken.");
-			ioe.printStackTrace();
-		}
-
+		// Create and start Client Implementation thread
+		ServerInfo serverInfo = new ServerInfo();
+		serverInfo.socket = socket;
+		serverInfo.client = this;
+		ClientThread clientImpl = factory.createClient(serverInfo);
+		clientImpl.setDaemon(true);
+		clientImpl.start();
+		
+		while (!clientImpl.isInterrupted())
+			;
 	}
 }

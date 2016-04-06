@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.wally.clientserver.ClientServerConstants;
 import org.wally.control.ui.MainWindow;
 import org.wally.control.util.FileUtils;
 
@@ -16,6 +17,9 @@ public class WallyController {
 		mainWindow = new MainWindow();
 		mainWindow.setVisible(true);
     	initServoBlaster();
+    	
+		SensorServer sensorServer = new SensorServer(ClientServerConstants.CONTROLLER_SERVER_PORT);
+		sensorServer.run();
     }
     
     public static MainWindow getMainWindow() {
