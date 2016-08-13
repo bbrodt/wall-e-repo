@@ -149,7 +149,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		panel.add(new Label("Actuators", Label.CENTER));
 
 		servoActuators.put(HEAD_NOD_SERVO, createServoActuator(panel, HEAD_NOD_SERVO, 0));
-		servoActuators.put(HEAD_TILT_SERVO, createServoActuator(panel, HEAD_TILT_SERVO, 1));
+		servoActuators.put(NECK_SERVO, createServoActuator(panel, NECK_SERVO, 1));
 		servoActuators.put(HEAD_TURN_SERVO, createServoActuator(panel, HEAD_TURN_SERVO, 2));
 		ServoActuator sa[];
 		sa = createCoupledServoActuators(panel, new String[] {LEFT_EYEBROW_SERVO, RIGHT_EYEBROW_SERVO}, new int[] {3,4});
@@ -161,8 +161,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		servoActuators.put(LEFT_HEAD_DROOP_SERVO, sa[0]);
 		servoActuators.put(RIGHT_HEAD_DROOP_SERVO, sa[1]);
 
-		servoActuators.put(NECK_TOP_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_TOP_SERVO, 0) );
-		servoActuators.put(NECK_BOTTOM_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_BOTTOM_SERVO, 1) );
+//		servoActuators.put(NECK_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_SERVO, 0) );
 
 		panel.add(Box.createVerticalStrut(1000));
 		return panel;

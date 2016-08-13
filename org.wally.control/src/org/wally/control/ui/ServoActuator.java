@@ -10,7 +10,7 @@ import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
 
 public class ServoActuator extends JSlider {
-	public final static int SLIDER_TICK = 20;
+	public final static int SLIDER_TICK = 1;
 	
 	private boolean reversed = false;
 	private int channel = -1;
@@ -43,6 +43,7 @@ public class ServoActuator extends JSlider {
 		setPaintTicks(true);
 		setPaintLabels(true);
 		setValue(IActuatorDriver.UI_MAX / 2);
+		Object ui = this.getUI();
 		addChangeListener(new ServoActuatorListener(this));
 	}
 
