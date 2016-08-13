@@ -1,6 +1,5 @@
 package org.wally.control.actuators;
 
-import java.io.IOException;
 
 
 public interface IActuatorDriver {

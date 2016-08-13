@@ -1,17 +1,12 @@
 package org.wally.remote.actuators;
 
+import org.wally.clientserver.ClientServerConstants;
 import org.wally.clientserver.server.ClientInfo;
 import org.wally.clientserver.server.LightweightServer;
 import org.wally.control.actuators.LocalServoDriver;
 
-public class ActuatorServer extends LightweightServer {
+public class ActuatorServer extends LightweightServer implements ClientServerConstants {
 
-	public final static String SERVO_REQUEST = "servo";
-	public final static String OPEN_REQUEST = "open";
-	public final static String GET_REQUEST = "get";
-	public final static String SET_REQUEST = "set";
-	public final static String CLOSE_REQUEST = "close";
-	
 	private AllocatedServoDriver servos[] = new AllocatedServoDriver[16];
 	
 	public ActuatorServer(int port) {
