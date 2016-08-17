@@ -18,7 +18,7 @@ public class LocalServoDriver extends ActuatorDriver {
 		try {
 			if (driver==null) {
 				if (servoProvider==null) {
-					servoProvider = new MaestroServoProvider(MaestroServoProvider.InterfaceType.USB);
+					servoProvider = new MaestroServoProvider();
 				}
 				driver = (MaestroServoDriver) servoProvider.getServoDriver(
 						servoProvider.getDefinedServoPins().get(channel));
