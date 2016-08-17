@@ -4,21 +4,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.swing.JSlider;
+import javax.swing.plaf.metal.MetalSliderUI;
 
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
 
 public class ServoActuator extends JSlider {
-	public final static int SLIDER_TICK = 20;
 	
 	private boolean reversed = false;
 	private int channel = -1;
 	private IActuatorDriver driver;
 	
 	public ServoActuator(String label, int channel) {
-		super(JSlider.HORIZONTAL, IActuatorDriver.UI_MIN, IActuatorDriver.UI_MAX,
-				ServoActuator.SLIDER_TICK);
+		super(JSlider.HORIZONTAL);
 		try {
 			label = label.replaceAll(" ", "%20");
 			URI partialUri = new URI(label);
@@ -38,30 +37,33 @@ public class ServoActuator extends JSlider {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		setMajorTickSpacing(IActuatorDriver.UI_MAX / 2);
-		setMinorTickSpacing(ServoActuator.SLIDER_TICK);
+		int min = driver.getMinValue();
+		int max = driver.getMaxValue();
+		setMajorTickSpacing((max-min)/100);
+		setMinorTickSpacing(1);
 		setPaintTicks(true);
 		setPaintLabels(true);
-		setValue(IActuatorDriver.UI_MAX / 2);
+		setSnapToTicks(true);
+		setValue((max-min)/2);
 		addChangeListener(new ServoActuatorListener(this));
 	}
 
 	public void setValue(int value) {
 		super.setValue(value);
 		if (reversed) {
-			value = IActuatorDriver.UI_MIN + IActuatorDriver.UI_MAX - value;
+			value = driver.getMinValue() + driver.getMaxValue() - value;
 		}
 		if (driver!=null) {
 			driver.setValue(value);
-			System.out.println(getName() + " servo " + channel + "=" + driver.toActuatorValue(value));
+			System.out.println(getName() + " servo " + channel + "=" + value);
 		}
 	}
 
 	public int getServoPosition() {
 		int value = getValue();
 		if (reversed)
-			value = IActuatorDriver.UI_MIN + IActuatorDriver.UI_MAX - value;
-		return driver.toActuatorValue(value);
+			value = driver.getMinValue() + driver.getMaxValue() - value;
+		return value;
 	}
 	
 	public boolean isReversed() {

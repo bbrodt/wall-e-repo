@@ -34,10 +34,10 @@ public class ActuatorServer extends LightweightServer implements ClientServerCon
 			
 			String parts[] = request.split(",");
 			if (SERVO_REQUEST.equals(parts[0])) {
-				// servo,<requestType>,<channelNumber>
-				String requestType = parts[1];
+				// servo,<command>,<channelNumber>
+				String command = parts[1];
 				int channel = Integer.parseInt(parts[2]);
-				if (OPEN_REQUEST.equals(requestType)) {
+				if (OPEN_COMMAND.equals(command)) {
 					// servo,open,<channelNumber>,<name>
 					String name = parts[3];
 					if (servos[channel]==null) {
@@ -51,10 +51,7 @@ public class ActuatorServer extends LightweightServer implements ClientServerCon
 								+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
 					}
 				}
-				else if (GET_REQUEST.equals(requestType)) {
-					
-				}
-				else if (SET_REQUEST.equals(requestType)) {
+				else if (SET_COMMAND.equals(command)) {
 					// servo,set,<channelNumber>,<value>
 					if (servos[channel]!=null) {
 						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
@@ -74,7 +71,107 @@ public class ActuatorServer extends LightweightServer implements ClientServerCon
 								+ " is not open";
 					}
 				}
-				else if (CLOSE_REQUEST.equals(requestType)) {
+				else if (SPEED_COMMAND.equals(command)) {
+					// servo,spd,<channelNumber>,<value>
+					if (servos[channel]!=null) {
+						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
+							int value = Integer.parseInt(parts[3]);
+							servos[channel].setSpeed(value);
+						}
+						else {
+							clientInfo.response = "ERROR,Servo channel "
+									+ channel
+									+ " opened by another client at "
+									+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
+						}
+					}
+					else {
+						clientInfo.response = "ERROR,Servo channel "
+								+ channel
+								+ " is not open";
+					}
+				}
+				else if (ACCELERATION_COMMAND.equals(command)) {
+					// servo,acc,<channelNumber>,<value>
+					if (servos[channel]!=null) {
+						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
+							int value = Integer.parseInt(parts[3]);
+							servos[channel].setAcceleration(value);
+						}
+						else {
+							clientInfo.response = "ERROR,Servo channel "
+									+ channel
+									+ " opened by another client at "
+									+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
+						}
+					}
+					else {
+						clientInfo.response = "ERROR,Servo channel "
+								+ channel
+								+ " is not open";
+					}
+				}
+				else if (GET_COMMAND.equals(command)) {
+					// servo,get,<channelNumber>
+					if (servos[channel]!=null) {
+						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
+							int value = servos[channel].getValue();
+							clientInfo.response = "" + value;
+						}
+						else {
+							clientInfo.response = "ERROR,Servo channel "
+									+ channel
+									+ " opened by another client at "
+									+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
+						}
+					}
+					else {
+						clientInfo.response = "ERROR,Servo channel "
+								+ channel
+								+ " is not open";
+					}
+				}
+				else if (MIN_COMMAND.equals(command)) {
+					// servo,min,<channelNumber>
+					if (servos[channel]!=null) {
+						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
+							int value = servos[channel].getMinValue();
+							clientInfo.response = "" + value;
+						}
+						else {
+							clientInfo.response = "ERROR,Servo channel "
+									+ channel
+									+ " opened by another client at "
+									+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
+						}
+					}
+					else {
+						clientInfo.response = "ERROR,Servo channel "
+								+ channel
+								+ " is not open";
+					}
+				}
+				else if (MAX_COMMAND.equals(command)) {
+					// servo,max,<channelNumber>
+					if (servos[channel]!=null) {
+						if (servos[channel].getClientInfo().socket==clientInfo.socket) {
+							int value = servos[channel].getMaxValue();
+							clientInfo.response = "" + value;
+						}
+						else {
+							clientInfo.response = "ERROR,Servo channel "
+									+ channel
+									+ " opened by another client at "
+									+ servos[channel].getClientInfo().socket.getInetAddress().getHostName();
+						}
+					}
+					else {
+						clientInfo.response = "ERROR,Servo channel "
+								+ channel
+								+ " is not open";
+					}
+				}
+				else if (CLOSE_COMMAND.equals(command)) {
 					// servo,close,<channelNumber>
 					if (servos[channel]!=null) {
 						if (servos[channel].getClientInfo().socket==clientInfo.socket) {

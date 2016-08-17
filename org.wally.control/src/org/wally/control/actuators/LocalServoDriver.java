@@ -2,13 +2,13 @@ package org.wally.control.actuators;
 
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 
-import com.pi4j.component.servo.ServoDriver;
-import com.pi4j.component.servo.impl.RPIServoBlasterProvider;
+import com.pi4j.component.servo.impl.MaestroServoProvider;
+import com.pi4j.component.servo.impl.MaestroServoDriver;
 
 public class LocalServoDriver extends ActuatorDriver {
 	
-	private static RPIServoBlasterProvider servoBlasterProvider;
-	private ServoDriver driver;
+	private static MaestroServoProvider servoProvider;
+	private MaestroServoDriver driver;
 
 	public LocalServoDriver(String name, int channel) {
 		super(name, channel);
@@ -17,11 +17,14 @@ public class LocalServoDriver extends ActuatorDriver {
 	public void connect() {
 		try {
 			if (driver==null) {
-				if (servoBlasterProvider==null) {
-					servoBlasterProvider = new RPIServoBlasterProvider();
+				if (servoProvider==null) {
+					servoProvider = new MaestroServoProvider(MaestroServoProvider.InterfaceType.USB);
 				}
-				driver = servoBlasterProvider.getServoDriver(
-						servoBlasterProvider.getDefinedServoPins().get(channel));
+				driver = (MaestroServoDriver) servoProvider.getServoDriver(
+						servoProvider.getDefinedServoPins().get(channel));
+				
+				driver.setAcceleration(20);
+				
 				notifyListeners(new ActuatorEvent(ActuatorEventType.CONNECTED, this));
 			}
 		} catch (Exception e) {
@@ -38,21 +41,55 @@ public class LocalServoDriver extends ActuatorDriver {
 		}
 	}
 	
-	public void setValue(int uiValue) {
+	public void setValue(int value) {
 		if (driver==null) {
 			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
 		}
 		else
-			driver.setServoPulseWidth(toActuatorValue(uiValue));
+			driver.setServoPulseWidth(value);
 	}
 	
-	public int toActuatorValue(int uiValue) {
-		return uiValue * 2 + UI_TO_ACTUATOR_OFFSET;
+	public int getValue() {
+		if (driver==null) {
+			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
+		}
+		else
+			return driver.getServoPulseWidth();
+		return -1;
 	}
-	
-	public int toUiValue(int actuatorValue) {
-		actuatorValue -= UI_TO_ACTUATOR_OFFSET;
-		return actuatorValue <= 0 ? 0 : actuatorValue/2;
+
+	public int getMinValue() {
+		if (driver==null) {
+			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
+		}
+		else
+			return driver.getMinValue();
+		return -1;
+	}
+
+	public int getMaxValue() {
+		if (driver==null) {
+			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
+		}
+		else
+			return driver.getMaxValue();
+		return -1;
+	}
+
+	public void setSpeed(int value) {
+		if (driver==null) {
+			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
+		}
+		else
+			driver.setSpeed(value);
+	}
+
+	public void setAcceleration(int value) {
+		if (driver==null) {
+			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));
+		}
+		else
+			driver.setAcceleration(value);
 	}
 
 }

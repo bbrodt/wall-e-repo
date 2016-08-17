@@ -14,9 +14,15 @@ public interface ClientServerConstants {
 	public static String REMOTE_2_ADDRESS = "//" + REMOTE_2_SERVER + ":" + REMOTE_2_SERVER_PORT + "/";
 
 	public final static String SERVO_REQUEST = "servo";
-	public final static String OPEN_REQUEST = "open";
-	public final static String GET_REQUEST = "get";
-	public final static String SET_REQUEST = "set";
-	public final static String CLOSE_REQUEST = "close";
+	public final static String OPEN_COMMAND = "open";
+	public final static String GET_COMMAND = "get";
+	public final static String SET_COMMAND = "set";
+	public final static String MIN_COMMAND = "min";
+	public final static String MAX_COMMAND = "max";
+	public final static String SPEED_COMMAND = "spd";
+	public final static String ACCELERATION_COMMAND = "acc";
+	public final static String CLOSE_COMMAND = "close";
 	
+	public final static String OK_RESPONSE = "OK";
+	public final static String ERROR_RESPONSE = "ERROR";
 }
