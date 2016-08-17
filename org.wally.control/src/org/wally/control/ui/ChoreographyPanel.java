@@ -113,6 +113,10 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 			title.setText("Choreography: "+file.getName());
 	}
 	
+	protected File getCurrentFile() {
+		return currentFile;
+	}
+	
 	public void load() {
 		JFileChooser fileChooser = getFileChooser();
 		int result = fileChooser.showOpenDialog(this);
@@ -127,19 +131,18 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 	}
 	
 	public void save() {
-		JFileChooser fileChooser = getFileChooser();
-		int result = fileChooser.showSaveDialog(this);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File file = fileChooser.getSelectedFile();
-			doSave(file);
+		File file = getCurrentFile();
+		if (file==null) {
+			JFileChooser fileChooser = getFileChooser();
+			int result = fileChooser.showSaveDialog(this);
+			if (result == JFileChooser.APPROVE_OPTION)
+				file = fileChooser.getSelectedFile();
 		}
+		doSave(file);
 	}
 	
 	private void doSave(File file) {
-		if (file==null) {
-			save();
-		}
-		else {
+		if (file!=null) {
 			if (FileUtils.saveScript(file, editor.getText()))
 				setCurrentFile(file);
 			else

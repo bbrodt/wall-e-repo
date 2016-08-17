@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.swing.JSlider;
-import javax.swing.plaf.metal.MetalSliderUI;
 
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
