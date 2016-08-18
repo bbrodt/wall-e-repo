@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.pi4j"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/jsyntaxpane-1.1.4.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/rhino-1.7.7.1.jar"/>
+	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-core.jar"/>
+	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-device.jar" sourcepath="USER_HOME/wall-e/lib/pi4j-device-sources.jar"/>
+	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-gpio-extension.jar"/>
+	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-service.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.wally.clientserver"/>
 	<classpathentry kind="output" path="bin"/>

@@ -2,9 +2,6 @@ package org.wally.control.actuators;
 
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 
-import com.pi4j.component.servo.impl.MaestroServoProvider;
-import com.pi4j.component.servo.impl.MaestroServoDriver;
-
 public class LocalServoDriver extends ActuatorDriver {
 	
 	private static MaestroServoProvider servoProvider;
