@@ -17,8 +17,7 @@ public class LocalServoDriver extends ActuatorDriver {
 				if (servoProvider==null) {
 					servoProvider = new MaestroServoProvider();
 				}
-				driver = (MaestroServoDriver) servoProvider.getServoDriver(
-						servoProvider.getDefinedServoPins().get(channel));
+				driver = (MaestroServoDriver) servoProvider.getServoDriver(channel);
 				
 				driver.setAcceleration(20);
 				

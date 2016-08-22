@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/jsyntaxpane-1.1.4.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/rhino-1.7.7.1.jar"/>
-	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-core.jar"/>
+	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-core.jar" sourcepath="/USER_HOME/wall-e/lib/pi4j-core-sources.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-device.jar" sourcepath="USER_HOME/wall-e/lib/pi4j-device-sources.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-gpio-extension.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-service.jar"/>

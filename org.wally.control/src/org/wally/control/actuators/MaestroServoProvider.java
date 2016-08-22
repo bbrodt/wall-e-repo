@@ -54,7 +54,7 @@ public class MaestroServoProvider implements ServoProvider {
 
 	public static final String PROVIDER_NAME = "Pololu Maestro Servo Controller";
     public static final String USB_DEVICE = "/dev/ttyACM0";
-    public static final String UART_DEVICE = "/dev/ttyS0";
+    public static final String UART_DEVICE = "/dev/ttyAMA0";
     // Maestro "device number", useful if daisy-chaining multiple controllers.
     // The factory default is 12.
     public static final int DEFAULT_DEVICE_ADDRESS = 12;
@@ -87,14 +87,14 @@ public class MaestroServoProvider implements ServoProvider {
 
     public MaestroServoProvider(InterfaceType interfaceType, int deviceAddress, int baudrate) throws SerialPortException, IOException {
     	this.interfaceType = interfaceType;
-    	this.deviceAddress = (byte) deviceAddress;
     	if (deviceAddress==-1) {
     		deviceAddress = DEFAULT_DEVICE_ADDRESS;
     	}
+    	this.deviceAddress = (byte) deviceAddress;
     	if (interfaceType==InterfaceType.USB) {
     		deviceName = USB_DEVICE;
     	}
-    	else if (interfaceType==InterfaceType.USB) {
+    	else {
     		deviceName = UART_DEVICE;
     	}
    		device = SerialFactory.createInstance();
@@ -144,15 +144,23 @@ public class MaestroServoProvider implements ServoProvider {
 
         return driver;
     }
-
+    
+    public synchronized ServoDriver getServoDriver(int address) throws IOException {
+        for (Pin pin : getDefinedServoPins()) {
+        	if (pin.getAddress() == address)
+        		return getServoDriver(pin);
+        }
+        return null;
+    }
+    
     protected synchronized void setServoPosition(int pinAddress, int value) {
     	byte command[] = { (byte)0x84, (byte)pinAddress, (byte)(value & 0x7F), (byte)(value >> 7 & 0x7F) };
-    	while (isMoving()) {
-    		try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-    	}
+//    	while (isMoving()) {
+//    		try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//			}
+//    	}
     	write(command);
     }
 
@@ -200,6 +208,14 @@ public class MaestroServoProvider implements ServoProvider {
     private byte[] read(int len) {
     	byte response[] = new byte[len];
         try {
+        	int tries = 0;
+        	int avail = device.available();
+        	while (avail<len && ++tries<10) {
+        		Thread.sleep(100);
+        		avail = device.available();
+        	}
+        	if (avail<len)
+            	return response; //throw new RuntimeException("Timeout reading from " + deviceName);
        		response = device.read(len);
         }
         catch (Exception e) {
