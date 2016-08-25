@@ -72,11 +72,11 @@ public class ServoActuator extends JSlider {
 		int max = driver.getMaxValue();
 		setMinimum(min);
 		setMaximum(max);
-		setMajorTickSpacing((max-min)/10);
+		setMajorTickSpacing((max-min)/4);
 		//setMinorTickSpacing(1);
 		setPaintTicks(true);
 		setPaintLabels(true);
-		setValue((max-min)/2);
+		setValue(min + (max-min)/2);
 	}
 	
 	public void disconnect() {
