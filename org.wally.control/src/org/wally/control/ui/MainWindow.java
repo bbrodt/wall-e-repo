@@ -6,7 +6,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
-import java.awt.Label;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +13,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,6 +26,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -35,13 +38,19 @@ import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEvent;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 import org.wally.control.actuators.ActuatorEventListener;
+import org.wally.control.actuators.IActuatorDriver;
+import org.wally.control.choreography.bindings.ConsoleObject;
+import org.wally.control.choreography.bindings.ServoObject;
 
 public class MainWindow extends JFrame implements ControlConstants, ClientServerConstants
 {
-
+	public static int MAX_CONSOLE_LINES = 200;
+	
 	private ChoreographyPanel choreographyPanel;
-	private JPanel actuatorsPanel;
-	private JPanel sensorsPanel;
+	private JScrollPane consolePane;
+	private ConsoleObject consoleObject;
+	private JScrollPane actuatorsScroller;
+	private JScrollPane sensorsScroller;
 	private JLabel statusLabel;
 	private String status = "";
 	private Map<String, ServoActuator> servoActuators = new HashMap<String, ServoActuator>();
@@ -54,18 +63,37 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		this.setLayout(new BorderLayout());
 		this.setUndecorated(true);
 		createMenus();
-
+		
 		choreographyPanel = createChoreographyPanel();
-		actuatorsPanel = createActuators();
-		sensorsPanel = createSensors();
+		consolePane = createConsole();
+		JSplitPane choreographyConsoleSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				choreographyPanel, consolePane);
+        choreographyConsoleSplitter.setOneTouchExpandable(true);
+
+        actuatorsScroller = createActuators();
+		sensorsScroller = createSensors();
 		statusLabel = createStatusArea();
 
-		this.add(actuatorsPanel, BorderLayout.LINE_START);
-		this.add(choreographyPanel, BorderLayout.CENTER);
-		this.add(sensorsPanel, BorderLayout.LINE_END);
+		this.add(actuatorsScroller, BorderLayout.LINE_START);
+		this.add(choreographyConsoleSplitter, BorderLayout.CENTER);
+		this.add(sensorsScroller, BorderLayout.LINE_END);
 		this.add(statusLabel, BorderLayout.PAGE_END);
+		
+		Dimension windowSize = this.getPreferredSize();
+        choreographyConsoleSplitter.setDividerLocation((int)(windowSize.height/1.8));
 	}
 
+	public void run() {
+		println(AboutDialog.APP_NAME);
+		print(AboutDialog.VERSION_INFO);
+		println("  Build Date: " + AboutDialog.getInstance().getBuildDate());
+		println("\n");
+
+		for (Entry<String, ServoActuator> entry : servoActuators.entrySet()) {
+			entry.getValue().connect();
+		}
+	}
+	   
 	public Insets getInsets() {
 		return new Insets(2, 2, 2, 2);
 	}
@@ -127,7 +155,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		JMenuItem aboutItem = new JMenuItem("About");
 		aboutItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				AboutDialog aboutDialog = new AboutDialog(MainWindow.this);
+				AboutDialog aboutDialog = AboutDialog.getInstance();
 				aboutDialog.setVisible(true);
 			}
 		});
@@ -139,14 +167,15 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 
 	private ChoreographyPanel createChoreographyPanel() {
 		ChoreographyPanel panel = new ChoreographyPanel();
+		panel.setPreferredSize(new Dimension(100, 500));
 		return panel;
 	}
 
-	private JPanel createActuators() {
+	private JScrollPane createActuators() {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.GREEN);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(new Label("Actuators", Label.CENTER));
+		panel.add(new JLabel("Actuators", JLabel.CENTER));
 
 		servoActuators.put(HEAD_NOD_SERVO, createServoActuator(panel, HEAD_NOD_SERVO, 0));
 		servoActuators.put(NECK_SERVO, createServoActuator(panel, NECK_SERVO, 1));
@@ -164,7 +193,12 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 //		servoActuators.put(NECK_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_SERVO, 0) );
 
 		panel.add(Box.createVerticalStrut(1000));
-		return panel;
+		JScrollPane scroller = new JScrollPane(panel);
+		Dimension dim = panel.getPreferredSize();
+		dim.width += 20;
+		scroller.setPreferredSize(dim);
+
+		return scroller;
 	}
 
 	private ServoActuator createServoActuator(final Container container, final String label, final int servo) {
@@ -173,11 +207,11 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		p.setBackground(Color.LIGHT_GRAY);
 		p.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 		JPanel p2 = new JPanel();
-		final JLabel labelField = new JLabel("",Label.LEFT);
+		final JLabel labelField = new JLabel("",JLabel.LEFT);
 		p2.add(labelField);
 		final JLabel positionField = new JLabel();
 		positionField.setText("");
-		p2.add(positionField, Label.CENTER);
+		p2.add(positionField, JLabel.CENTER);
 		p.add(p2);
 		final ServoActuator sa = new ServoActuator(label,servo);
 		positionField.setText(""+sa.getServoPosition());
@@ -190,23 +224,21 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 			public void handleEvent(ActuatorEvent event) {
 				if (event.type==ActuatorEventType.CONNECTED) {
 					sa.setBackground(Color.GREEN);
-					WallyController.setStatus(event.source.getName()+" connected");
+					WallyController.println(event.source.getName()+" connected");
 				}
 				else if (event.type==ActuatorEventType.DISCONNECTED) {
 					sa.setBackground(Color.GRAY);
-					WallyController.setStatus(event.source.getName()+" disconnected");
+					WallyController.println(event.source.getName()+" disconnected");
 				}
 				else {
 					sa.setBackground(Color.RED);
-					WallyController.setStatus(event.source.getName()+" can't connect");
+					WallyController.println(event.source.getName()+" can't connect");
 				}
 			}
 		});
-		labelField.setText(sa.getName());
+		labelField.setText(sa.getName()+" ["+servo+"]");
 		p.add(sa);
 		container.add(p);
-		
-		sa.connect();
 		
 		return sa;
 	}
@@ -246,14 +278,79 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		return sas;
 	}
 
-	private JPanel createSensors() {
+	private JScrollPane createSensors() {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.YELLOW);
-		panel.setLayout(new FlowLayout());
-		panel.add(new Label("Sensors", Label.CENTER));
-		return panel;
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(new JLabel("============== Sensors ==============", JLabel.CENTER));
+
+		panel.add(Box.createVerticalStrut(1000));
+		JScrollPane scroller = new JScrollPane(panel);
+		Dimension dim = panel.getPreferredSize();
+		dim.width += 20;
+		scroller.setPreferredSize(dim);
+
+		return scroller;
 	}
 
+	private JScrollPane createConsole() {
+		JTextPane pane = new JTextPane();
+		pane.setText("");
+
+		JScrollPane scroller = new JScrollPane(pane);
+		Dimension dim = pane.getPreferredSize();
+		dim.width += 20;
+		scroller.setPreferredSize(dim);
+		
+		scroller.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
+
+		return scroller;
+	}
+	
+	public ConsoleObject getConsoleObject() {
+		if (consoleObject==null) {
+			consoleObject = new ConsoleObject() {
+				
+				public void println(String text) {
+					MainWindow.this.println(text);
+				}
+				
+				public void print(String text) {
+					MainWindow.this.print(text);
+				}
+			};
+		}
+		return consoleObject;
+	}
+	
+	public void println(String text) {
+		JTextPane pane = (JTextPane) consolePane.getViewport().getView();
+		String oldText = pane.getText();
+		String newText = limitConsoleText(oldText + text + "\n");
+		pane.setText(newText);
+		consolePane.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
+	}
+	
+	public void print(String text) {
+		JTextPane pane = (JTextPane) consolePane.getViewport().getView();
+		String oldText = pane.getText();
+		String newText = limitConsoleText(oldText + text);
+		pane.setText(newText);
+		consolePane.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
+	}
+	
+	private String limitConsoleText(String text) {
+		int lines = 1;
+		for (int i=text.length()-1; i>=0; --i) {
+			if (text.charAt(i)=='\n') {
+				++lines;
+				if (lines>=MAX_CONSOLE_LINES)
+					return text.substring(i+1);
+			}
+		}
+		return text;
+	}
+	
 	private JLabel createStatusArea() {
 		JLabel label = new JLabel();
 		label.setBackground(Color.LIGHT_GRAY);
@@ -270,5 +367,63 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 	
 	public Map<String, ServoActuator> getServoActuators() {
 		return servoActuators;
+	}
+	
+	public ServoObject[] getServoObjects() {
+		// Find the highest channel number: this will be the
+		// size of the returned array. Note that we do not
+		// necessarily have to use all available channels
+		int size = -1;
+		for (Entry<String, ServoActuator> entry : getServoActuators().entrySet()) {
+			int channel = entry.getValue().getDriver().getChannel();
+			if (channel>=size)
+				size = channel+1;
+		}
+		
+		ServoObject servoObjects[] = new ServoObject[size];
+		for (Entry<String, ServoActuator> entry : getServoActuators().entrySet()) {
+			final ServoActuator sa = entry.getValue();
+			final IActuatorDriver driver = sa.getDriver();
+			int channel = driver.getChannel();
+			servoObjects[channel] = new ServoObject() {
+
+				public String getName() {
+					return sa.getName();
+				}
+
+				public void setValue(int value) {
+					sa.setValue(value);
+				}
+
+				public int getServoPosition() {
+					return sa.getServoPosition();
+				}
+
+				public boolean isReversed() {
+					return sa.isReversed();
+				}
+
+				public void setReversed(boolean reversed) {
+					sa.setReversed(reversed);
+				}
+
+				public void setSpeed(int value) {
+					driver.setSpeed(value);
+				}
+
+				public void setAcceleration(int value) {
+					driver.setAcceleration(value);
+				}
+
+				public int getMinValue() {
+					return driver.getMinValue();
+				}
+
+				public int getMaxValue() {
+					return driver.getMaxValue();
+				}
+			};
+		}
+		return servoObjects;
 	}
 }

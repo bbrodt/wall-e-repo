@@ -12,11 +12,21 @@ import java.awt.Panel;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.util.Date;
 
 import javax.swing.JDialog;
 
+import org.wally.control.WallyController;
+
 public class AboutDialog extends JDialog {
-	public AboutDialog(Container parent) {
+	public static String APP_NAME = "Wall-E Controller";
+	public static String VERSION_INFO = "Version 1.0";
+	private static AboutDialog instance;
+	
+	private AboutDialog(Container parent) {
 		super((Frame) parent, true);
 		setBackground(Color.gray);
 		setLayout(new BorderLayout());
@@ -37,6 +47,24 @@ public class AboutDialog extends JDialog {
 		});
 	}
 
+	public static AboutDialog getInstance() {
+		if (instance==null) {
+			instance = new AboutDialog(WallyController.getMainWindow());
+		}
+		return instance;
+	}
+	
+	public String getBuildDate() {
+		Date buildDate;
+		try {
+			buildDate = new Date(new File(getClass().getClassLoader().getResource(getClass().getCanonicalName().replace('.', '/') + ".class").toURI()).lastModified());
+			return DateFormat.getInstance().format(buildDate);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return "Can't determine Build Date: "+e.getMessage();
+		}
+	}
+
 	public boolean action(Event evt, Object arg) {
 		if (arg.equals("Close")) {
 			dispose();
@@ -47,7 +75,8 @@ public class AboutDialog extends JDialog {
 
 	public void paint(Graphics g) {
 		g.setColor(Color.white);
-		g.drawString("Wall-E Controller", 50, 70);
-		g.drawString("Version 1.0", 60, 90);
+		g.drawString(APP_NAME, 50, 70);
+		g.drawString(VERSION_INFO, 60, 90);
+		g.drawString(getBuildDate(), 60, 110);
 	}
 }

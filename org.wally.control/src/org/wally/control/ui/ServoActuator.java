@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 
 import javax.swing.JSlider;
 
+import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
@@ -39,6 +40,10 @@ public class ServoActuator extends JSlider {
 		addChangeListener(new ServoActuatorListener(this));
 	}
 
+	public IActuatorDriver getDriver() {
+		return driver;
+	}
+	
 	public void setValue(int value) {
 		super.setValue(value);
 		if (reversed) {
@@ -46,7 +51,7 @@ public class ServoActuator extends JSlider {
 		}
 		if (driver!=null) {
 			driver.setValue(value);
-			System.out.println(getName() + " servo " + channel + "=" + value);
+			WallyController.println(getName() + " servo " + channel + "=" + value);
 		}
 	}
 

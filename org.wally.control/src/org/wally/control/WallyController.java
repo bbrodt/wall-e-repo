@@ -17,6 +17,7 @@ public class WallyController {
 		mainWindow = new MainWindow();
 		mainWindow.setVisible(true);
     	initServoBlaster();
+    	mainWindow.run();
     	
 		SensorServer sensorServer = new SensorServer(ClientServerConstants.CONTROLLER_SERVER_PORT);
 		sensorServer.run();
@@ -31,6 +32,20 @@ public class WallyController {
     		mainWindow.setStatus(status);
     	else
     		System.err.println("Status: "+status);
+    }
+    
+    public static void println(String text) {
+    	if (mainWindow!=null)
+    		mainWindow.println(text);
+    	else
+    		System.err.println("Console Output: "+text);
+    }
+    
+    public static void print(String text) {
+    	if (mainWindow!=null)
+    		mainWindow.print(text);
+    	else
+    		System.err.println("Console Output: "+text);
     }
     
     private static void initServoBlaster() {

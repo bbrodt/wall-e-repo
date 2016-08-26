@@ -155,7 +155,7 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 			choreography = new Choreography(editor.getText());
 			choreography.setScriptName(getCurrentFileName());
 			choreography.addStateListener(this);
-			choreography.addBinding("servos", WallyController.getMainWindow().getServoActuators());
+			choreography.addBinding("servo", WallyController.getMainWindow().getServoObjects());
 			choreography.schedule();
 		}
 	}
@@ -194,15 +194,15 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 	public void scriptStateChanged(ScriptEvent event) {
 		try {
 			if (event.type==ScriptEventType.RUN)
-				WallyController.setStatus("Running Choreography "+getCurrentFileName());
+				WallyController.println("Running Choreography "+getCurrentFileName());
 			else if (event.type==ScriptEventType.STOP)
-				WallyController.setStatus("Choreography "+getCurrentFileName()+" stopped with status "+event.source.getResult());
+				WallyController.println("Choreography "+getCurrentFileName()+" stopped with status "+event.source.getResult());
 			else if (event.type==ScriptEventType.MSG)
-				WallyController.setStatus("Choreography message: "+event.msg);
+				WallyController.println("Choreography message: "+event.msg);
 			else if (event.type==ScriptEventType.ERROR)
-				WallyController.setStatus("Choreography error: "+event.error.getMessage());
+				WallyController.println("Choreography error: "+event.error.getMessage());
 			else
-				WallyController.setStatus("Unhandled Choreography event: "+event.type);
+				WallyController.println("Unhandled Choreography event: "+event.type);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

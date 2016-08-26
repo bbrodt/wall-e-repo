@@ -37,6 +37,10 @@ public class LocalServoDriver extends ActuatorDriver {
 		}
 	}
 	
+	public int getChannel() {
+		return channel;
+	}
+	
 	public void setValue(int value) {
 		if (driver==null) {
 			notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, "Not connected"));

@@ -5,6 +5,7 @@ package org.wally.control.actuators;
 public interface IActuatorDriver {
 	public void setName(String name);
 	public String getName();
+	public int getChannel();
 	public void connect();
 	public void disconnect();
 	public void addActuatorListener(ActuatorEventListener listener);

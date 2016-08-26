@@ -10,9 +10,11 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.wally.control.choreography.ScriptContextFactory.WallyScriptContext;
-import org.wally.control.util.FileUtils;
 import org.mozilla.javascript.tools.shell.Global;
+import org.wally.control.WallyController;
+import org.wally.control.choreography.ScriptContextFactory.WallyScriptContext;
+import org.wally.control.choreography.bindings.ScriptObject;
+import org.wally.control.util.FileUtils;
 
 public class ScriptRunner {
 	
@@ -65,8 +67,24 @@ public class ScriptRunner {
 			scope = new Global(scriptContext);
 //			scope = scriptContext.initStandardObjects();
 
-			addBinding("out", System.out);
-			addBinding("script", this);
+			addBinding("out", WallyController.getMainWindow().getConsoleObject());
+			addBinding("script", new ScriptObject() {
+				public void stop() {
+					ScriptRunner.this.stop();
+				}
+				
+				public void sleep(int milliseconds) {
+					ScriptRunner.this.sleep(milliseconds);
+				}
+				
+				public void run(String fileName) {
+					ScriptRunner.this.run(fileName);
+				}
+				
+				public String getScriptName() {
+					return ScriptRunner.this.getScriptName();
+				}
+			});
 			createBindings();
 		}
 		return scriptContext;

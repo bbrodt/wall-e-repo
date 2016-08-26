@@ -123,6 +123,10 @@ public class RemoteServoDriver extends ActuatorDriver implements ClientServerCon
 		socket = null;
 		notifyListeners(new ActuatorEvent(ActuatorEventType.ERROR, this, e));
 	}
+	
+	public int getChannel() {
+		return channel;
+	}
 
 	public void setValue(int value) {
 		sendRequest(SERVO_REQUEST+","+SET_COMMAND+","+channel+","+value);
