@@ -1,7 +1,9 @@
 package org.wally.clientserver.server;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 
 public class ClientListener extends Thread {
 	private ClientInfo clientInfo;

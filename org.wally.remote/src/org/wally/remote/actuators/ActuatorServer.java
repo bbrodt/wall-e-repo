@@ -33,7 +33,7 @@ public class ActuatorServer extends LightweightServer implements ClientServerCon
 			
 			
 			String parts[] = request.split(",");
-			if (SERVO_REQUEST.equals(parts[0])) {
+			if (DeviceType.SERVO.toString().equals(parts[0])) {
 				// servo,<command>,<channelNumber>
 				String command = parts[1];
 				int channel = Integer.parseInt(parts[2]);

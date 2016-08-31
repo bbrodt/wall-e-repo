@@ -1,7 +1,5 @@
 package org.wally.control.actuators;
 
-
-
 public interface IActuatorDriver {
 	public void setName(String name);
 	public String getName();
@@ -11,8 +9,7 @@ public interface IActuatorDriver {
 	public void addActuatorListener(ActuatorEventListener listener);
 	public void removeActuatorListener(ActuatorEventListener listener);
 	public void setValue(int value);
-	public void setSpeed(int value);
-	public void setAcceleration(int value);
-	public int getMinValue();
-	public int getMaxValue();
+	public int getValue();
+	public void setProperty(String name, Object value);
+	public Object getProperty(String name);
 }

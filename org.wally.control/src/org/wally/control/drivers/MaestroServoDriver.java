@@ -1,4 +1,4 @@
-package org.wally.control.actuators;
+package org.wally.control.drivers;
 
 /*-
  * #%L
@@ -30,6 +30,7 @@ package org.wally.control.actuators;
  */
 
 
+
 import com.pi4j.component.servo.ServoDriver;
 import com.pi4j.io.gpio.Pin;
 
@@ -41,9 +42,9 @@ public class MaestroServoDriver implements ServoDriver {
     protected Pin servoPin;
     protected MaestroServoProvider provider;
 
-	public MaestroServoDriver(Pin servoPin, MaestroServoProvider provider) {
-        this.servoPin = servoPin;
+	public MaestroServoDriver(MaestroServoProvider provider, Pin servoPin) {
         this.provider = provider;
+        this.servoPin = servoPin;
 	}
 
     public int getServoPulseWidth() {

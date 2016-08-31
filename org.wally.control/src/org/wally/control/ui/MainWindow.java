@@ -38,7 +38,7 @@ import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEvent;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 import org.wally.control.actuators.ActuatorEventListener;
-import org.wally.control.actuators.IActuatorDriver;
+import org.wally.control.actuators.IServoDriver;
 import org.wally.control.choreography.bindings.ConsoleObject;
 import org.wally.control.choreography.bindings.ServoObject;
 
@@ -54,6 +54,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 	private JLabel statusLabel;
 	private String status = "";
 	private Map<String, ServoActuator> servoActuators = new HashMap<String, ServoActuator>();
+	private Map<String, SwitchActuator> switchActuators = new HashMap<String, SwitchActuator>();
 	
 	public MainWindow() {
 		Toolkit tk = Toolkit.getDefaultToolkit();
@@ -90,6 +91,10 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		println("\n");
 
 		for (Entry<String, ServoActuator> entry : servoActuators.entrySet()) {
+			entry.getValue().connect();
+		}
+
+		for (Entry<String, SwitchActuator> entry : switchActuators.entrySet()) {
 			entry.getValue().connect();
 		}
 	}
@@ -192,6 +197,8 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 
 //		servoActuators.put(NECK_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_SERVO, 0) );
 
+		switchActuators.put("LASER", createSwitchActuator(panel, "LASER", 14));
+		
 		panel.add(Box.createVerticalStrut(1000));
 		JScrollPane scroller = new JScrollPane(panel);
 		Dimension dim = panel.getPreferredSize();
@@ -230,7 +237,11 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 					sa.setBackground(Color.GRAY);
 					WallyController.println(event.source.getName()+" disconnected");
 				}
-				else {
+				else if (event.type==ActuatorEventType.VALUE_CHANGED) {
+					sa.setForeground(Color.BLACK);
+					WallyController.println(event.source.getName()+" value changed: "+event.value);
+				}
+				else if (event.type==ActuatorEventType.ERROR) {
 					sa.setBackground(Color.RED);
 					WallyController.println(event.source.getName()+" can't connect");
 				}
@@ -278,6 +289,50 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		return sas;
 	}
 
+	private SwitchActuator createSwitchActuator(final Container container, final String label, final int channel) {
+		final SwitchActuator sa = new SwitchActuator(label,channel);
+		sa.addChangeListener(new ChangeListener() {
+			boolean inStateChange = false;
+			public void stateChanged(ChangeEvent arg0) {
+				if (!inStateChange) {
+					try {
+						inStateChange = true;
+						boolean selected = sa.isSelected();
+						boolean value = sa.getValue()==0 ? false : true;
+						if (selected!=value)
+							sa.setValue(value ? 0 : 1);
+					}
+					finally {
+						inStateChange = false;
+					}
+				}
+			}
+		});
+		sa.addListener(new ActuatorEventListener() {
+			public void handleEvent(ActuatorEvent event) {
+				if (event.type==ActuatorEventType.CONNECTED) {
+					sa.setForeground(Color.GREEN);
+					WallyController.println(event.source.getName()+" connected");
+				}
+				else if (event.type==ActuatorEventType.DISCONNECTED) {
+					sa.setForeground(Color.BLACK);
+					WallyController.println(event.source.getName()+" disconnected");
+				}
+				else if (event.type==ActuatorEventType.VALUE_CHANGED) {
+					sa.setForeground(Color.BLACK);
+					WallyController.println(event.source.getName()+" value changed: "+event.value);
+				}
+				else if (event.type==ActuatorEventType.ERROR) {
+					sa.setForeground(Color.RED);
+					WallyController.println(event.source.getName()+" can't connect");
+				}
+			}
+		});
+		container.add(sa);
+		
+		return sa;
+	}
+
 	private JScrollPane createSensors() {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.YELLOW);
@@ -323,7 +378,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		return consoleObject;
 	}
 	
-	public void println(String text) {
+	public synchronized void println(String text) {
 		JTextPane pane = (JTextPane) consolePane.getViewport().getView();
 		String oldText = pane.getText();
 		String newText = limitConsoleText(oldText + text + "\n");
@@ -331,7 +386,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		consolePane.getVerticalScrollBar().setValue(Integer.MAX_VALUE);
 	}
 	
-	public void print(String text) {
+	public synchronized void print(String text) {
 		JTextPane pane = (JTextPane) consolePane.getViewport().getView();
 		String oldText = pane.getText();
 		String newText = limitConsoleText(oldText + text);
@@ -358,7 +413,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		return label;
 	}
 	
-	public void setStatus(String status) {
+	public synchronized void setStatus(String status) {
 		this.status = status;
 		if (statusLabel!=null) {
 			statusLabel.setText("Status: "+status);
@@ -383,7 +438,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		ServoObject servoObjects[] = new ServoObject[size];
 		for (Entry<String, ServoActuator> entry : getServoActuators().entrySet()) {
 			final ServoActuator sa = entry.getValue();
-			final IActuatorDriver driver = sa.getDriver();
+			final IServoDriver driver = (IServoDriver) sa.getDriver();
 			int channel = driver.getChannel();
 			servoObjects[channel] = new ServoObject() {
 

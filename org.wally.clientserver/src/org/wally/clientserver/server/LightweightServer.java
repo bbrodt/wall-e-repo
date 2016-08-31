@@ -1,7 +1,8 @@
 package org.wally.clientserver.server;
 
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public abstract class LightweightServer {
 

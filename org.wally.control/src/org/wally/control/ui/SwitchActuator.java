@@ -3,27 +3,26 @@ package org.wally.control.ui;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 
 import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
 import org.wally.control.actuators.IActuatorUI;
-import org.wally.control.actuators.IServoDriver;
 
-public class ServoActuator extends JSlider implements IActuatorUI {
-	
-	private boolean reversed = false;
+public class SwitchActuator extends JToggleButton implements IActuatorUI {
+
 	private int channel = -1;
-	private IServoDriver driver;
-	
-	public ServoActuator(String label, int channel) {
-		super(JSlider.HORIZONTAL);
+	private IActuatorDriver driver;
+	private int value = 0;
+
+	public SwitchActuator(String label, int channel) {
+		super(label);
 		try {
 			label = label.replaceAll(" ", "%20");
 			URI partialUri = new URI(label);
-			URI uri = ActuatorFactory.createURI(ActuatorFactory.SERVO_SCHEME,
+			URI uri = ActuatorFactory.createURI(ActuatorFactory.SWITCH_SCHEME,
 					partialUri.getHost(), partialUri.getPort(), partialUri.getPath(), channel);
 			initialize(uri);
 		} catch (URISyntaxException e) {
@@ -35,11 +34,11 @@ public class ServoActuator extends JSlider implements IActuatorUI {
 		try {
 			channel = ActuatorFactory.getActuatorChannel(uri);
 			setName(ActuatorFactory.getActuatorName(uri));
-			driver = (IServoDriver) ActuatorFactory.createDriver(uri);
+			driver = ActuatorFactory.createDriver(uri);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addChangeListener(new ServoActuatorListener(this));
+		addChangeListener(new SwitchActuatorListener(this));
 	}
 
 	public IActuatorDriver getDriver() {
@@ -47,43 +46,20 @@ public class ServoActuator extends JSlider implements IActuatorUI {
 	}
 	
 	public void setValue(int value) {
-		super.setValue(value);
-		if (reversed) {
-			value = driver.getMinValue() + driver.getMaxValue() - value;
-		}
+		this.value = value;
+		super.setSelected(value!=0);
 		if (driver!=null) {
 			driver.setValue(value);
-			WallyController.println(getName() + " servo " + channel + "=" + value);
 		}
 	}
 
-	public int getServoPosition() {
-		int value = getValue();
-		if (reversed)
-			value = driver.getMinValue() + driver.getMaxValue() - value;
+	public int getValue() {
 		return value;
-	}
-	
-	public boolean isReversed() {
-		return reversed;
-	}
-
-	public void setReversed(boolean reversed) {
-		this.reversed = reversed;
-		this.setInverted(true);
 	}
 
 	public void connect() {
 		driver.connect();
-		int min = driver.getMinValue();
-		int max = driver.getMaxValue();
-		setMinimum(min);
-		setMaximum(max);
-		setMajorTickSpacing((max-min)/4);
-		//setMinorTickSpacing(1);
-		setPaintTicks(true);
-		setPaintLabels(true);
-		setValue(min + (max-min)/2);
+		setValue(value);
 	}
 	
 	public void disconnect() {

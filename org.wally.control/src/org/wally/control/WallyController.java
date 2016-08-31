@@ -27,21 +27,21 @@ public class WallyController {
     	return mainWindow;
     }
     
-    public static void setStatus(String status) {
+    public static synchronized void setStatus(String status) {
     	if (mainWindow!=null)
     		mainWindow.setStatus(status);
     	else
     		System.err.println("Status: "+status);
     }
     
-    public static void println(String text) {
+    public static synchronized void println(String text) {
     	if (mainWindow!=null)
     		mainWindow.println(text);
     	else
     		System.err.println("Console Output: "+text);
     }
     
-    public static void print(String text) {
+    public static synchronized void print(String text) {
     	if (mainWindow!=null)
     		mainWindow.print(text);
     	else

@@ -1,4 +1,4 @@
-package org.wally.control.actuators;
+package org.wally.control.drivers;
 
 /*-
  * #%L
@@ -138,7 +138,7 @@ public class MaestroServoProvider implements ServoProvider {
 
         MaestroServoDriver driver = servoDrivers.get(servoPin);
         if (driver == null) {
-            driver = new MaestroServoDriver(servoPin, this);
+            driver = new MaestroServoDriver(this, servoPin);
             servoDrivers.put(servoPin, driver);
         }
 

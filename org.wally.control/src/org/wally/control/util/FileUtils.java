@@ -6,10 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
-import javax.swing.JOptionPane;
-
-import org.wally.control.WallyController;
-
 public class FileUtils {
 
 	public static String load(File file) {

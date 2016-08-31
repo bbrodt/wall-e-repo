@@ -4,10 +4,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 
+
 public class ActuatorFactory {
 
 	public final static String SERVO_SCHEME = "servo";
 	public final static String MOTOR_SCHEME = "motor";
+	public final static String SWITCH_SCHEME = "switch";
 	public final static String CHANNEL_QUERY = "channel";
 	
 	public static String getActuatorType(URI uri) {
@@ -87,6 +89,17 @@ public class ActuatorFactory {
 		}
 		else if (MOTOR_SCHEME.equals(actuatorType)) {
 			
+		}
+		else if (SWITCH_SCHEME.equals(actuatorType)) {
+			if (host!=null && port>0) {
+				// remote switch
+				driver = new RemoteSwitchDriver(actuatorName, host, port, channel);
+			}
+			else {
+				// local switch
+				driver = new LocalSwitchDriver(actuatorName, channel);
+			}
+
 		}
 		return driver;
 	}

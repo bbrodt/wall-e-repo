@@ -2,6 +2,11 @@ package org.wally.clientserver;
 
 public interface ClientServerConstants {
 	
+	public enum DeviceType {
+		SERVO,
+		SWITCH,
+	};
+	
 	public static String CONTROLLER_SERVER = "wall-e-1";
 	public static String REMOTE_1_SERVER = "localhost"; //"wall-e-2";
 	public static String REMOTE_2_SERVER = "wall-e-3";
@@ -13,7 +18,6 @@ public interface ClientServerConstants {
 	public static String REMOTE_1_ADDRESS = "//" + REMOTE_1_SERVER + ":" + REMOTE_1_SERVER_PORT + "/";
 	public static String REMOTE_2_ADDRESS = "//" + REMOTE_2_SERVER + ":" + REMOTE_2_SERVER_PORT + "/";
 
-	public final static String SERVO_REQUEST = "servo";
 	public final static String OPEN_COMMAND = "open";
 	public final static String GET_COMMAND = "get";
 	public final static String SET_COMMAND = "set";

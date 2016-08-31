@@ -25,6 +25,17 @@ public abstract class ActuatorDriver implements IActuatorDriver {
 		return name;
 	}
 	
+	public int getChannel() {
+		return channel;
+	}
+
+	public void setProperty(String name, Object value) {
+	}
+
+	public Object getProperty(String name) {
+		return null;
+	}
+
 	public void addActuatorListener(ActuatorEventListener listener) {
 		if (!listeners.contains(listener))
 			listeners.add(listener);
