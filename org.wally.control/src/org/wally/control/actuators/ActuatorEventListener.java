@@ -1,6 +1,8 @@
 package org.wally.control.actuators;
 
-public interface ActuatorEventListener {
+import org.wally.control.WallyEventListener;
 
-	public void handleEvent(ActuatorEvent event);
+public abstract class ActuatorEventListener extends WallyEventListener<ActuatorEvent> {
+
+	public abstract void handleEvent(ActuatorEvent event);
 }

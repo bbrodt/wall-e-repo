@@ -6,5 +6,9 @@ public class VoiceCommandDriver extends SensorDriver {
 		super(name, channel);
 	}
 
+	public void connect() {
+	}
 
+	public void disconnect() {
+	}
 }

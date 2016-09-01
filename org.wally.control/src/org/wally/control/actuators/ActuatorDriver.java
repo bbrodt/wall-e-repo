@@ -37,14 +37,44 @@ public abstract class ActuatorDriver implements IActuatorDriver {
 	}
 
 	public void addActuatorListener(ActuatorEventListener listener) {
-		if (!listeners.contains(listener))
+		if (!listeners.contains(listener)) {
+			// if the listener has a target, check if we already have
+			// a listener with the same target and don't add if so
+			Object target = listener.getTarget();
+			if (target!=null) {
+				for (ActuatorEventListener l : listeners) {
+					if (l.getTarget()==target)
+						return;
+				}
+			}
 			listeners.add(listener);
+		}
 	}
 	
 	public void removeActuatorListener(ActuatorEventListener listener) {
-		listeners.remove(listener);
+		if (!listeners.contains(listener)) {
+			// remove the listener based on its target
+			// instead of the actual listener object
+			Object target = listener.getTarget();
+			if (target!=null) {
+				for (ActuatorEventListener l : listeners) {
+					if (l.getTarget()==target) {
+						listeners.remove(l);
+						return;
+					}
+				}
+			}
+		}
+		else
+			listeners.remove(listener);
 	}
-	
+
+	public List<ActuatorEventListener> getListeners() {
+		List<ActuatorEventListener> copy = new ArrayList<ActuatorEventListener>();
+		copy.addAll(listeners);
+		return copy;
+	}
+
 	protected void notifyListeners(ActuatorEvent event) {
 		for (ActuatorEventListener listener : listeners) {
 			listener.handleEvent(event);

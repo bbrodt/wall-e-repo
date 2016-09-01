@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SensorDriver implements ISensorDriver {
+public abstract class SensorDriver implements ISensorDriver {
 
 	protected String name;
 	protected int channel;
@@ -37,11 +37,5 @@ public class SensorDriver implements ISensorDriver {
 		for (SensorEventListener listener : listeners) {
 			listener.handleEvent(event);
 		}
-	}
-
-	public void connect() {
-	}
-
-	public void disconnect() {
 	}
 }

@@ -11,7 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -39,8 +42,11 @@ import org.wally.control.actuators.ActuatorEvent;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.IServoDriver;
+import org.wally.control.actuators.ISwitchDriver;
+import org.wally.control.choreography.Choreography;
 import org.wally.control.choreography.bindings.ConsoleObject;
 import org.wally.control.choreography.bindings.ServoObject;
+import org.wally.control.choreography.bindings.SwitchObject;
 
 public class MainWindow extends JFrame implements ControlConstants, ClientServerConstants
 {
@@ -291,23 +297,6 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 
 	private SwitchActuator createSwitchActuator(final Container container, final String label, final int channel) {
 		final SwitchActuator sa = new SwitchActuator(label,channel);
-		sa.addChangeListener(new ChangeListener() {
-			boolean inStateChange = false;
-			public void stateChanged(ChangeEvent arg0) {
-				if (!inStateChange) {
-					try {
-						inStateChange = true;
-						boolean selected = sa.isSelected();
-						boolean value = sa.getValue()==0 ? false : true;
-						if (selected!=value)
-							sa.setValue(value ? 0 : 1);
-					}
-					finally {
-						inStateChange = false;
-					}
-				}
-			}
-		});
 		sa.addListener(new ActuatorEventListener() {
 			public void handleEvent(ActuatorEvent event) {
 				if (event.type==ActuatorEventType.CONNECTED) {
@@ -424,16 +413,22 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 		return servoActuators;
 	}
 	
-	public ServoObject[] getServoObjects() {
+	public Map<String, SwitchActuator> getSwitchActuators() {
+		return switchActuators;
+	}
+	
+	public List<? extends IActuatorUI> getAllActuators() {
+		List actuators = new ArrayList();
+		actuators.addAll(servoActuators.values());
+		actuators.addAll(switchActuators.values());
+		return actuators;
+	}
+	
+	public ServoObject[] getServoObjects(final Choreography choreography) {
 		// Find the highest channel number: this will be the
 		// size of the returned array. Note that we do not
 		// necessarily have to use all available channels
-		int size = -1;
-		for (Entry<String, ServoActuator> entry : getServoActuators().entrySet()) {
-			int channel = entry.getValue().getDriver().getChannel();
-			if (channel>=size)
-				size = channel+1;
-		}
+		int size = getHighestChannel(getSwitchActuators().values());
 		
 		ServoObject servoObjects[] = new ServoObject[size];
 		for (Entry<String, ServoActuator> entry : getServoActuators().entrySet()) {
@@ -450,7 +445,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 					sa.setValue(value);
 				}
 
-				public int getServoPosition() {
+				public int getValue() {
 					return sa.getServoPosition();
 				}
 
@@ -477,8 +472,73 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 				public int getMaxValue() {
 					return driver.getMaxValue();
 				}
+
+				public void addListener(final Object listener) {
+					driver.addActuatorListener(new ActuatorEventListener() {
+						public void handleEvent(ActuatorEvent event) {
+							choreography.callback(listener, new Object[] {event});
+						}
+						public Object getTarget() {
+							return listener;
+						}
+					});
+				}
 			};
 		}
 		return servoObjects;
+	}
+	
+	public SwitchObject[] getSwitchObjects(final Choreography choreography) {
+		// Find the highest channel number: this will be the
+		// size of the returned array. Note that we do not
+		// necessarily have to use all available channels
+		int size = getHighestChannel(getSwitchActuators().values());
+		
+		SwitchObject switchObjects[] = new SwitchObject[size];
+		for (Entry<String, SwitchActuator> entry : getSwitchActuators().entrySet()) {
+			final SwitchActuator sa = entry.getValue();
+			final ISwitchDriver driver = (ISwitchDriver) sa.getDriver();
+			int channel = driver.getChannel();
+			switchObjects[channel] = new SwitchObject() {
+
+				public String getName() {
+					return sa.getName();
+				}
+
+				public int getValue() {
+					return sa.getValue();
+				}
+
+				public void setValue(int value) {
+					sa.setValue(value);
+				}
+
+				public void addListener(final Object listener) {
+					driver.addActuatorListener(new ActuatorEventListener() {
+						public void handleEvent(ActuatorEvent event) {
+							choreography.callback(listener, new Object[] {event});
+						}
+						public Object getTarget() {
+							return listener;
+						}
+					});
+				}
+
+				public boolean toggle() {
+					return sa.toggle();
+				}
+			};
+		}
+		return switchObjects;
+	}
+	
+	private int getHighestChannel(Collection<? extends IActuatorUI> actuators) {
+		int size = -1;
+		for (IActuatorUI entry : actuators) {
+			int channel = entry.getDriver().getChannel();
+			if (channel>=size)
+				size = channel+1;
+		}
+		return size;
 	}
 }

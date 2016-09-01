@@ -1,4 +1,9 @@
-package org.wally.control.actuators;
+package org.wally.control.ui;
+
+import java.util.List;
+
+import org.wally.control.actuators.ActuatorEventListener;
+import org.wally.control.actuators.IActuatorDriver;
 
 public interface IActuatorUI {
 
@@ -9,4 +14,5 @@ public interface IActuatorUI {
 	public void disconnect();
 	public void addListener(ActuatorEventListener listener);
 	public void removeListener(ActuatorEventListener listener);
+	public List<ActuatorEventListener> getListeners();
 }

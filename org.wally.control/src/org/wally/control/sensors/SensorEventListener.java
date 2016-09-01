@@ -1,6 +1,8 @@
 package org.wally.control.sensors;
 
-public interface SensorEventListener {
+import org.wally.control.WallyEventListener;
 
-	public void handleEvent(SensorEvent event);
+public abstract class SensorEventListener extends WallyEventListener<SensorEvent> {
+
+	public abstract void handleEvent(SensorEvent event);
 }

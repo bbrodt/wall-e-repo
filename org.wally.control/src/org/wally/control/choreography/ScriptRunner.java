@@ -8,10 +8,14 @@ import java.util.Map.Entry;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 import org.wally.control.WallyController;
+import org.wally.control.actuators.ActuatorEvent;
+import org.wally.control.actuators.ActuatorEventListener;
+import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 import org.wally.control.choreography.ScriptContextFactory.WallyScriptContext;
 import org.wally.control.choreography.bindings.ScriptObject;
 import org.wally.control.util.FileUtils;
@@ -90,6 +94,10 @@ public class ScriptRunner {
 		return scriptContext;
 	}
 	
+	public Context getContext() {
+		return createContext();
+	}
+	
 	public void addBinding(String name, Object object) {
 		if (bindings==null) {
 			bindings = new Hashtable<String, Object>();
@@ -141,6 +149,20 @@ public class ScriptRunner {
 			notifyListeners(new ScriptEvent(this,"script finished"));
 	}
 
+	public void callback(Object listener, Object[] args) {
+		if (listener instanceof Function) {
+			final Function f = (Function)listener;
+			final Context c = Context.enter();
+			final Scriptable s = scope;
+			try {
+				f.call(c, s, null, args);
+			}
+			finally {
+				Context.exit();
+			}
+		}
+	}
+	
 	public void stop() {
 		if (scriptContext!=null)
 			scriptContext.stop();

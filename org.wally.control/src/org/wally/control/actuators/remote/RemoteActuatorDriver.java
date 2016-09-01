@@ -1,4 +1,4 @@
-package org.wally.control.actuators;
+package org.wally.control.actuators.remote;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import org.wally.clientserver.ClientServerConstants;
+import org.wally.control.actuators.ActuatorDriver;
+import org.wally.control.actuators.ActuatorEvent;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 
 public abstract class RemoteActuatorDriver extends ActuatorDriver implements ClientServerConstants {

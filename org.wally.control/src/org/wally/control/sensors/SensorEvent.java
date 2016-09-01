@@ -1,7 +1,9 @@
 package org.wally.control.sensors;
 
+import org.wally.control.WallyEvent;
 
-public class SensorEvent {
+
+public class SensorEvent extends WallyEvent {
 	public enum SensorEventType {
 		CONNECTED,
 		DISCONNECTED,
@@ -10,8 +12,6 @@ public class SensorEvent {
 	
 	public SensorEventType type;
 	public ISensorDriver source;
-	public Exception exception;
-	public String message;
 	
 	public SensorEvent(SensorEventType type, ISensorDriver source) {
 		this.type = type;

@@ -3,6 +3,11 @@ package org.wally.control.actuators;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.wally.control.actuators.local.LocalServoDriver;
+import org.wally.control.actuators.local.LocalSwitchDriver;
+import org.wally.control.actuators.remote.RemoteServoDriver;
+import org.wally.control.actuators.remote.RemoteSwitchDriver;
+
 
 
 public class ActuatorFactory {

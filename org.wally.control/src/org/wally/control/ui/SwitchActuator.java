@@ -2,23 +2,24 @@ package org.wally.control.ui;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
-import org.wally.control.actuators.IActuatorUI;
 
-public class SwitchActuator extends JToggleButton implements IActuatorUI {
+public class SwitchActuator extends JToggleButton implements IActuatorUI, ChangeListener {
 
 	private int channel = -1;
 	private IActuatorDriver driver;
 	private int value = 0;
 
 	public SwitchActuator(String label, int channel) {
-		super(label);
+		super(label+" ["+channel+"]");
 		try {
 			label = label.replaceAll(" ", "%20");
 			URI partialUri = new URI(label);
@@ -38,7 +39,7 @@ public class SwitchActuator extends JToggleButton implements IActuatorUI {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		addChangeListener(new SwitchActuatorListener(this));
+		addChangeListener(this);
 	}
 
 	public IActuatorDriver getDriver() {
@@ -46,7 +47,7 @@ public class SwitchActuator extends JToggleButton implements IActuatorUI {
 	}
 	
 	public void setValue(int value) {
-		this.value = value;
+		this.value = value == 0 ? 0 : 1;
 		super.setSelected(value!=0);
 		if (driver!=null) {
 			driver.setValue(value);
@@ -57,6 +58,11 @@ public class SwitchActuator extends JToggleButton implements IActuatorUI {
 		return value;
 	}
 
+	public boolean toggle() {
+		setValue(getValue()==0 ? 1 : 0);
+		return getValue()!=0;
+	}
+	
 	public void connect() {
 		driver.connect();
 		setValue(value);
@@ -72,5 +78,17 @@ public class SwitchActuator extends JToggleButton implements IActuatorUI {
 	
 	public void removeListener(ActuatorEventListener listener) {
 		driver.removeActuatorListener(listener);
+	}
+
+	public List<ActuatorEventListener> getListeners() {
+		return driver.getListeners();
+	}
+
+	public void stateChanged(ChangeEvent e) {
+		// button was pressed or released: update gpio pin state
+		boolean selected = isSelected();
+		boolean state = (value!=0);
+		if (selected!=state)
+			setValue(selected ? 1 : 0);
 	}
 }

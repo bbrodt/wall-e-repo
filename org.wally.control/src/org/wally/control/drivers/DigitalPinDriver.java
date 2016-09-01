@@ -2,7 +2,8 @@ package org.wally.control.drivers;
 
 import java.util.EnumSet;
 
-import org.wally.control.actuators.IDigitalPinDriver;
+import org.wally.control.actuators.ISwitchDriver;
+
 
 import com.pi4j.io.gpio.GpioPin;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -12,7 +13,7 @@ import com.pi4j.io.gpio.PinMode;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.impl.PinImpl;
 
-public class DigitalPinDriver implements IDigitalPinDriver {
+public class DigitalPinDriver {
 	
 	private GpioPinDigitalInput pinDigitalInput;
 	private GpioPinDigitalOutput pinDigitalOutput;

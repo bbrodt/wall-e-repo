@@ -1,8 +1,11 @@
 package org.wally.control.actuators;
 
+import org.wally.control.WallyEvent;
+import org.wally.control.actuators.local.LocalSwitchDriver;
 
 
-public class ActuatorEvent {
+
+public class ActuatorEvent extends WallyEvent {
 	public enum ActuatorEventType {
 		CONNECTED,
 		DISCONNECTED,
@@ -12,9 +15,6 @@ public class ActuatorEvent {
 	
 	public ActuatorEventType type;
 	public IActuatorDriver source;
-	public Exception exception;
-	public String message;
-	public int value;
 	
 	public ActuatorEvent(ActuatorEventType type, IActuatorDriver source) {
 		this.type = type;

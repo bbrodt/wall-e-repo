@@ -1,4 +1,6 @@
-package org.wally.control.actuators;
+package org.wally.control.actuators.remote;
+
+import org.wally.control.actuators.IServoDriver;
 
 
 

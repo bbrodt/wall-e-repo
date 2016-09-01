@@ -2,6 +2,7 @@ package org.wally.control.ui;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.swing.JSlider;
 
@@ -9,7 +10,6 @@ import org.wally.control.WallyController;
 import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.actuators.ActuatorFactory;
 import org.wally.control.actuators.IActuatorDriver;
-import org.wally.control.actuators.IActuatorUI;
 import org.wally.control.actuators.IServoDriver;
 
 public class ServoActuator extends JSlider implements IActuatorUI {
@@ -96,5 +96,9 @@ public class ServoActuator extends JSlider implements IActuatorUI {
 	
 	public void removeListener(ActuatorEventListener listener) {
 		driver.removeActuatorListener(listener);
+	}
+
+	public List<ActuatorEventListener> getListeners() {
+		return driver.getListeners();
 	}
 }

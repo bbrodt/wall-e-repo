@@ -1,5 +1,8 @@
-package org.wally.control.actuators;
+package org.wally.control.actuators.local;
 
+import org.wally.control.actuators.ActuatorDriver;
+import org.wally.control.actuators.ActuatorEvent;
+import org.wally.control.actuators.IServoDriver;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
 import org.wally.control.drivers.MaestroServoDriver;
 import org.wally.control.drivers.MaestroServoProvider;

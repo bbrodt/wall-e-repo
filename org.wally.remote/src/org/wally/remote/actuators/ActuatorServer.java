@@ -3,7 +3,7 @@ package org.wally.remote.actuators;
 import org.wally.clientserver.ClientServerConstants;
 import org.wally.clientserver.server.ClientInfo;
 import org.wally.clientserver.server.LightweightServer;
-import org.wally.control.actuators.LocalServoDriver;
+import org.wally.control.actuators.local.LocalServoDriver;
 
 public class ActuatorServer extends LightweightServer implements ClientServerConstants {
 

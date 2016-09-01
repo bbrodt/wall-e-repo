@@ -19,9 +19,11 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
 
-import jsyntaxpane.syntaxkits.JavaSyntaxKit;
+import jsyntaxpane.syntaxkits.JavaScriptSyntaxKit;
 
+import org.mozilla.javascript.Function;
 import org.wally.control.WallyController;
+import org.wally.control.actuators.ActuatorEventListener;
 import org.wally.control.choreography.Choreography;
 import org.wally.control.choreography.ScriptEvent;
 import org.wally.control.choreography.ScriptEventType;
@@ -91,8 +93,9 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 			}
 			
 			public void keyReleased(KeyEvent event) {
-				if (event.getKeyChar()==19) {
-					doSave(currentFile);
+				int c = event.getKeyChar();
+				if (c==19) {
+					save();
 				}
 			}
 			
@@ -102,7 +105,7 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 		editor.setBorder(new LineBorder(Color.BLACK, 2));
 		
 		this.add(scrollPane, BorderLayout.CENTER);
-		editor.setEditorKit(new JavaSyntaxKit());
+		editor.setEditorKit(new JavaScriptSyntaxKit());
 	}
 	
 	protected void setCurrentFile(File file) {
@@ -155,7 +158,8 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 			choreography = new Choreography(editor.getText());
 			choreography.setScriptName(getCurrentFileName());
 			choreography.addStateListener(this);
-			choreography.addBinding("servo", WallyController.getMainWindow().getServoObjects());
+			choreography.addBinding("servos", WallyController.getMainWindow().getServoObjects(choreography));
+			choreography.addBinding("switches", WallyController.getMainWindow().getSwitchObjects(choreography));
 			choreography.schedule();
 		}
 	}
@@ -163,7 +167,13 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 	public void stop() {
 		if (choreography!=null) {
 			choreography.stop();
-//			choreography = null;
+			for (IActuatorUI a : WallyController.getMainWindow().getAllActuators()) {
+				for (ActuatorEventListener l : a.getListeners()) {
+					if (l.getTarget() instanceof Function)
+						a.removeListener(l);
+				}
+			}
+			choreography = null;
 		}
 	}
 	
@@ -195,12 +205,16 @@ public class ChoreographyPanel extends JPanel implements ScriptStateListener {
 		try {
 			if (event.type==ScriptEventType.RUN)
 				WallyController.println("Running Choreography "+getCurrentFileName());
-			else if (event.type==ScriptEventType.STOP)
+			else if (event.type==ScriptEventType.STOP) {
 				WallyController.println("Choreography "+getCurrentFileName()+" stopped with status "+event.source.getResult());
+				stop();
+			}
 			else if (event.type==ScriptEventType.MSG)
 				WallyController.println("Choreography message: "+event.msg);
-			else if (event.type==ScriptEventType.ERROR)
+			else if (event.type==ScriptEventType.ERROR) {
 				WallyController.println("Choreography error: "+event.error.getMessage());
+				stop();
+			}
 			else
 				WallyController.println("Unhandled Choreography event: "+event.type);
 		} catch (Exception e) {
