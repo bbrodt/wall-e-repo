@@ -203,7 +203,7 @@ public class MainWindow extends JFrame implements ControlConstants, ClientServer
 
 //		servoActuators.put(NECK_SERVO, createServoActuator(panel, REMOTE_1_ADDRESS+NECK_SERVO, 0) );
 
-		switchActuators.put("LASER", createSwitchActuator(panel, "LASER", 14));
+		switchActuators.put("LASER", createSwitchActuator(panel, "LASER", 8));
 		
 		panel.add(Box.createVerticalStrut(1000));
 		JScrollPane scroller = new JScrollPane(panel);

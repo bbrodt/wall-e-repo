@@ -6,7 +6,6 @@
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-core.jar" sourcepath="/USER_HOME/wall-e/lib/pi4j-core-sources.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-device.jar" sourcepath="USER_HOME/wall-e/lib/pi4j-device-sources.jar"/>
 	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-gpio-extension.jar"/>
-	<classpathentry kind="var" path="USER_HOME/wall-e/lib/pi4j-service.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.wally.clientserver"/>
 	<classpathentry kind="output" path="bin"/>
