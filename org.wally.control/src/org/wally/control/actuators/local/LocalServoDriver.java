@@ -2,10 +2,11 @@ package org.wally.control.actuators.local;
 
 import org.wally.control.actuators.ActuatorDriver;
 import org.wally.control.actuators.ActuatorEvent;
-import org.wally.control.actuators.IServoDriver;
 import org.wally.control.actuators.ActuatorEvent.ActuatorEventType;
+import org.wally.control.actuators.IServoDriver;
 import org.wally.control.drivers.MaestroServoDriver;
 import org.wally.control.drivers.MaestroServoProvider;
+import org.wally.control.drivers.MaestroServoProvider.InterfaceType;
 
 public class LocalServoDriver extends ActuatorDriver implements IServoDriver{
 	
@@ -20,7 +21,7 @@ public class LocalServoDriver extends ActuatorDriver implements IServoDriver{
 		try {
 			if (driver==null) {
 				if (provider==null) {
-					provider = new MaestroServoProvider();
+					provider = new MaestroServoProvider(InterfaceType.USB);
 				}
 				driver = (MaestroServoDriver) provider.getServoDriver(channel);
 				
