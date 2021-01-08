@@ -190,6 +190,19 @@ public class MaestroServoProvider implements ServoProvider {
         return response[0] == 0x01;
     }
 
+    protected int getError() {
+    	byte command[] = { (byte)0xA1 };
+    	write(command);
+
+        byte response[] = read(2);
+        return response[1] << 8 | response[0];
+    }
+
+    protected void goHome() {
+    	byte command[] = { (byte)0xA2 };
+    	write(command);
+    }
+   
     private void write(byte command[]) {
         try {
         	if (interfaceType==InterfaceType.UART) {
